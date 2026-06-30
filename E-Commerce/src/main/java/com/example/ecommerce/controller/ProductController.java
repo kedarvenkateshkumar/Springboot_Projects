@@ -2,8 +2,10 @@ package com.example.ecommerce.controller;
 
 import com.example.ecommerce.entity.Product;
 import com.example.ecommerce.service.ProductService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,6 +16,11 @@ public class ProductController {
 
     @Autowired
     private ProductService productService;
+
+    @GetMapping("/csrf-token")
+    public CsrfToken getCsrfToken(HttpServletRequest request){
+        return (CsrfToken) request.getAttribute("_csrf");
+    }
 
     // CREATE
     @PostMapping
@@ -30,9 +37,9 @@ public class ProductController {
     }
 
     // READ ONE
-    @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
-        Product product = productService.getProductById(id);
+    @GetMapping("/name")
+    public ResponseEntity<List<Product>> getProduct(@RequestParam String name) {
+        List<Product> product = productService.findByNameContainingIgnoringCase(name);
         return ResponseEntity.ok(product);
     }
 

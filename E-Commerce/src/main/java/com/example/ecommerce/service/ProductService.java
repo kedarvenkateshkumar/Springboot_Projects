@@ -32,6 +32,16 @@ public class ProductService {
                         "Product not found with id: " + id));
     }
 
+
+    public List<Product> findByNameContainingIgnoringCase(String name){
+        List<Product> products = productRepository.findByNameContainingIgnoringCase(name);
+        if(products.isEmpty()){
+            throw new RuntimeException("Product is not found with name: "+name);
+        }
+        return products;
+
+    }
+
     // Update
     public Product updateProduct(Long id, Product updatedProduct) {
         Product product = productRepository.findById(id)
