@@ -1,23 +1,27 @@
 package com.example.ecommerce.controller;
 
 import com.example.ecommerce.entity.User;
-import com.example.ecommerce.service.UserService;
+import com.example.ecommerce.service.UserRegister;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
 public class UserController {
 
     @Autowired
-    private UserService userService;
+    private UserRegister userRegister;
 
     @PostMapping("/register")
     public User register(@RequestBody User user){
-        return userService.register(user);
+        return userRegister.register(user);
     }
 
+    @PostMapping("/login")
+    public String login(@RequestBody User user){
+        return userRegister.login(user);
+    }
 
 }
+
+
