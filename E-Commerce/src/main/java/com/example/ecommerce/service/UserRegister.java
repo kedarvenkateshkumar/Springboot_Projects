@@ -2,6 +2,7 @@ package com.example.ecommerce.service;
 
 
 import com.example.ecommerce.entity.User;
+import com.example.ecommerce.exception.UserAlreadyExistException;
 import com.example.ecommerce.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -22,10 +23,13 @@ public class UserRegister {
 
     @Autowired
     private ProductService productService;
-
     final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
     public User register(User user){
+        User exist = userRepo.findByUsername(user.getUsername());
+        if(exist != null){
+            throw new UserAlreadyExistException("user already exist");
+        }
         user.setPassword(encoder.encode(user.getPassword()));
         return userRepo.save(user);
     }
