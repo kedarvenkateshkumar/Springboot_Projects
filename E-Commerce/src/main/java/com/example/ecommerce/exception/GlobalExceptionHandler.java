@@ -3,9 +3,11 @@ package com.example.ecommerce.exception;
 import jakarta.persistence.OptimisticLockException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import tools.jackson.databind.exc.InvalidFormatException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -51,6 +53,37 @@ public class GlobalExceptionHandler {
                 message
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidRequest(
+            HttpMessageNotReadableException ex) {
+
+        Throwable cause = ex.getCause();
+
+        if (cause instanceof InvalidFormatException invalidFormatException) {
+
+            if (invalidFormatException.getTargetType().isEnum()) {
+
+                ErrorResponse error = new ErrorResponse(
+                        HttpStatus.BAD_REQUEST.value(),
+                        "Invalid role. Please select either USER or ADMIN."
+                );
+
+                return ResponseEntity
+                        .status(HttpStatus.BAD_REQUEST)
+                        .body(error);
+            }
+        }
+
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Invalid request data."
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(error);
     }
 
     // Handle All Other Exceptions (500)

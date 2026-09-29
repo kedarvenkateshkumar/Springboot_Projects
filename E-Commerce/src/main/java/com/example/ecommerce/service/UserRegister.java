@@ -36,7 +36,11 @@ public class UserRegister {
 
     public String login(User user){
         Authentication authentication =
-                authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+                authManager.authenticate(new UsernamePasswordAuthenticationToken(
+                        user.getUsername(),
+                        user.getPassword())
+
+                );
         if(!authentication.isAuthenticated()){
             throw new AuthenticationCredentialsNotFoundException("Invalid credentials");
         }
