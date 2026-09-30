@@ -1,6 +1,7 @@
 package com.example.ecommerce.service;
 
 
+import com.example.ecommerce.config.JwtService;
 import com.example.ecommerce.entity.User;
 import com.example.ecommerce.exception.UserAlreadyExistException;
 import com.example.ecommerce.repository.UserRepo;
@@ -22,31 +23,43 @@ public class UserRegister {
     private AuthenticationProvider authManager;
 
     @Autowired
+    private JwtService jwtService;
+
+    @Autowired
     private ProductService productService;
     final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
-    public User register(User user){
+    public User register(User user) {
         User exist = userRepo.findByUsername(user.getUsername());
-        if(exist != null){
+        if (exist != null) {
             throw new UserAlreadyExistException("user already exist");
         }
         user.setPassword(encoder.encode(user.getPassword()));
         return userRepo.save(user);
     }
 
-    public String login(User user){
+    public String login(User user) {
+
+        System.out.println("1. Login started");
+
         Authentication authentication =
-                authManager.authenticate(new UsernamePasswordAuthenticationToken(
-                        user.getUsername(),
-                        user.getPassword())
-
+                authManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(
+                                user.getUsername(),
+                                user.getPassword()
+                        )
                 );
-        if(!authentication.isAuthenticated()){
-            throw new AuthenticationCredentialsNotFoundException("Invalid credentials");
-        }
-        return "Login success.. ";
 
+        System.out.println("2. Authentication successful");
+        System.out.println("3. Username: " + authentication.getName());
 
+        String username = authentication.getName();
 
+        String token = jwtService.generateToken(username);
+
+        System.out.println("4. JWT generated successfully");
+
+        return token;
     }
+
 }
