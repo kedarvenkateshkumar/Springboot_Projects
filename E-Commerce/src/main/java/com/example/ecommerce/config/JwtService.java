@@ -25,7 +25,7 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(String username) {
+    public String generateToken(String username , String role) {
 
         Date currentDate = new Date();
 
@@ -34,6 +34,7 @@ public class JwtService {
 
         return Jwts.builder()
                 .subject(username)
+                .claim("role" , role)
                 .issuedAt(currentDate)
                 .expiration(expirationDate)
                 .signWith(getSigningKey())

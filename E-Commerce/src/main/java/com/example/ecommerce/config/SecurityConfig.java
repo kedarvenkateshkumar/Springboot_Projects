@@ -28,6 +28,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                     .requestMatchers("/auth/register" , "/auth/login")
                     .permitAll()
+                        .requestMatchers("/admin/**")
+                        .hasAuthority("ADMIN")
+
+                        .requestMatchers("/user/**")
+                        .hasAuthority("USER")
+
+                        .requestMatchers("/products/**")
+                        .hasAnyAuthority("USER", "ADMIN")
                     .anyRequest().authenticated())
         //http.formLogin(Customizer.withDefaults());
             .httpBasic(Customizer.withDefaults())

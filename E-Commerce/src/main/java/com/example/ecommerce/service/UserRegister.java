@@ -53,9 +53,12 @@ public class UserRegister {
         System.out.println("2. Authentication successful");
         System.out.println("3. Username: " + authentication.getName());
 
-        String username = authentication.getName();
 
-        String token = jwtService.generateToken(username);
+
+        String token = jwtService.generateToken(
+                user.getUsername(),
+                user.getRole().name()
+        );
 
         System.out.println("4. JWT generated successfully");
 
