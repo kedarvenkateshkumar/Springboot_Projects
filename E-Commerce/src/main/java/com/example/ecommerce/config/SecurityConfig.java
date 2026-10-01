@@ -4,6 +4,7 @@ import com.example.ecommerce.service.MyUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -28,14 +29,17 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                     .requestMatchers("/auth/register" , "/auth/login")
                     .permitAll()
-                        .requestMatchers("/admin/**")
+                        .requestMatchers(HttpMethod.GET, "/api/products/**")
+                        .hasAnyAuthority("USER", "ADMIN")
+
+                        .requestMatchers(HttpMethod.POST, "/api/products/**")
                         .hasAuthority("ADMIN")
 
-                        .requestMatchers("/user/**")
-                        .hasAuthority("USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/products/**")
+                        .hasAuthority("ADMIN")
 
-                        .requestMatchers("/products/**")
-                        .hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/products/**")
+                        .hasAuthority("ADMIN")
                     .anyRequest().authenticated())
         //http.formLogin(Customizer.withDefaults());
             .httpBasic(Customizer.withDefaults())

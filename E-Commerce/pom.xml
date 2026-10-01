@@ -75,6 +75,11 @@
             <version>0.13.0</version>
             <scope>runtime</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
         <!-- Source: https://mvnrepository.com/artifact/org.springframework.security/spring-security-web -->
         <!-- Source: https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-security -->
 

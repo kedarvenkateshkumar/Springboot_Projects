@@ -1,67 +1,104 @@
 package com.example.ecommerce.service;
 
+import com.example.ecommerce.dto.ProductRequest;
+import com.example.ecommerce.dto.ProductResponse;
 import com.example.ecommerce.entity.Product;
 import com.example.ecommerce.exception.ResourceNotFoundException;
 import com.example.ecommerce.repository.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-
 @Service
 public class ProductService {
 
-    @Autowired
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
 
-    // Create
-    public Product createProduct(Product product) {
-        return productRepository.save(product);
+    public ProductService(ProductRepository productRepository) {
+        this.productRepository = productRepository;
     }
 
-    // Read All
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public ProductResponse createProduct(ProductRequest request) {
+
+        Product product = new Product();
+
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
+        product.setQuantity(request.getQuantity());
+
+        Product savedProduct = productRepository.save(product);
+
+        return convertToResponse(savedProduct);
     }
 
-    // Read One
-    public Product getProductById(Long id) {
-        return productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Product not found with id: " + id));
+    public List<ProductResponse> getAllProducts() {
+
+        return productRepository.findAll()
+                .stream()
+                .map(this::convertToResponse)
+                .toList();
     }
 
+    public ProductResponse getProductById(Long id) {
 
-    public List<Product> findByNameContainingIgnoringCase(String name){
-        List<Product> products = productRepository.findByNameContainingIgnoringCase(name);
-        if(products.isEmpty()){
-            throw new RuntimeException("Product is not found with name: "+name);
-        }
-        return products;
-
-    }
-
-    // Update
-    public Product updateProduct(Long id, Product updatedProduct) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Product not found with id: " + id));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Product not found with id: " + id
+                        ));
 
-        product.setName(updatedProduct.getName());
-        product.setDescription(updatedProduct.getDescription());
-        product.setPrice(updatedProduct.getPrice());
-        product.setQuantity(updatedProduct.getQuantity());
-
-        return productRepository.save(product);
+        return convertToResponse(product);
     }
 
-    // Delete
+    public List<ProductResponse> searchProducts(String name) {
+
+        return productRepository
+                .findByNameContainingIgnoringCase(name)
+                .stream()
+                .map(this::convertToResponse)
+                .toList();
+    }
+
+    public ProductResponse updateProduct(
+            Long id,
+            ProductRequest request) {
+
+        Product product = productRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Product not found with id: " + id
+                        ));
+
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
+        product.setQuantity(request.getQuantity());
+
+        Product updatedProduct = productRepository.save(product);
+
+        return convertToResponse(updatedProduct);
+    }
+
     public void deleteProduct(Long id) {
+
         if (!productRepository.existsById(id)) {
             throw new ResourceNotFoundException(
-                    "Product not found with id: " + id);
+                    "Product not found with id: " + id
+            );
         }
+
         productRepository.deleteById(id);
+    }
+
+    private ProductResponse convertToResponse(Product product) {
+
+        return new ProductResponse(
+                product.getId(),
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getQuantity()
+        );
     }
 }

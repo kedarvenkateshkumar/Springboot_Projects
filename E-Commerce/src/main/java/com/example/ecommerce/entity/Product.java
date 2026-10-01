@@ -1,6 +1,9 @@
 package com.example.ecommerce.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 
 @Entity
 @Table(name = "products")
@@ -10,18 +13,28 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @NotBlank
     private String name;
 
-    @Column(nullable = false)
+    @NotBlank
     private String description;
 
-    @Column(nullable = false)
+    @Positive
     private Double price;
 
-    @Column(nullable = false)
-    private Integer quantity;
+    @Version
+    private Integer version;
 
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
+    @PositiveOrZero
+    private Integer quantity;
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

@@ -1,11 +1,11 @@
 package com.example.ecommerce.controller;
 
-import com.example.ecommerce.entity.Product;
+import com.example.ecommerce.dto.ProductRequest;
+import com.example.ecommerce.dto.ProductResponse;
 import com.example.ecommerce.service.ProductService;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,43 +14,67 @@ import java.util.List;
 @RequestMapping("/api/products")
 public class ProductController {
 
-    @Autowired
-    private ProductService productService;
+    private final ProductService productService;
 
-    // CREATE
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
+
     @PostMapping
-    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
-        Product created = productService.createProduct(product);
-        return ResponseEntity.ok(created);
+    public ResponseEntity<ProductResponse> createProduct(
+            @Valid @RequestBody ProductRequest request) {
+
+        ProductResponse created = productService.createProduct(request);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(created);
     }
 
-    // READ ALL
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts() {
-        List<Product> products = productService.getAllProducts();
-        return ResponseEntity.ok(products);
+    public ResponseEntity<List<ProductResponse>> getAllProducts() {
+
+        return ResponseEntity.ok(
+                productService.getAllProducts()
+        );
     }
 
-    // READ ONE
-    @GetMapping("/name")
-    public ResponseEntity<List<Product>> getProduct(@RequestParam String name) {
-        List<Product> product = productService.findByNameContainingIgnoringCase(name);
-        return ResponseEntity.ok(product);
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductResponse> getProductById(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                productService.getProductById(id)
+        );
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<ProductResponse>> searchProducts(
+            @RequestParam String name) {
 
-    // UPDATE
+        return ResponseEntity.ok(
+                productService.searchProducts(name)
+        );
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id,
-                                                 @RequestBody Product product) {
-        Product updated = productService.updateProduct(id, product);
-        return ResponseEntity.ok(updated);
+    public ResponseEntity<ProductResponse> updateProduct(
+            @PathVariable Long id,
+            @Valid @RequestBody ProductRequest request) {
+
+        return ResponseEntity.ok(
+                productService.updateProduct(id, request)
+        );
     }
 
-    // DELETE
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<String> deleteProduct(
+            @PathVariable Long id) {
+
         productService.deleteProduct(id);
-        return ResponseEntity.ok("Product deleted successfully");
+
+        return ResponseEntity.ok(
+                "Product deleted successfully"
+        );
     }
 }
