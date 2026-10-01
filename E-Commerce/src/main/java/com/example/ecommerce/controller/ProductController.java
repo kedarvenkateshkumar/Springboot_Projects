@@ -17,11 +17,6 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    @GetMapping("/csrf-token")
-    public CsrfToken getCsrfToken(HttpServletRequest request){
-        return (CsrfToken) request.getAttribute("_csrf");
-    }
-
     // CREATE
     @PostMapping
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {

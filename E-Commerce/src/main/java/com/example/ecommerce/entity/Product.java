@@ -19,7 +19,6 @@ public class Product {
     @Column(nullable = false)
     private Double price;
 
-    @Version
     @Column(nullable = false)
     private Integer quantity;
 
