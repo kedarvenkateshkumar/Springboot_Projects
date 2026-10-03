@@ -13,6 +13,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserRegister {
 
@@ -30,7 +32,7 @@ public class UserRegister {
     final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
     public User register(User user) {
-        User exist = userRepo.findByUsername(user.getUsername());
+        Optional<User> exist = userRepo.findByUsername(user.getUsername());
         if (exist != null) {
             throw new UserAlreadyExistException("user already exist");
         }

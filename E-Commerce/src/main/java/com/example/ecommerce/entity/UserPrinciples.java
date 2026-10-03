@@ -7,13 +7,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.Optional;
 
 public class UserPrinciples implements UserDetails {
 
     private User user;
-    public UserPrinciples(User user) {
-        this.user = user;
+    public UserPrinciples(Optional<User> user) {
+        this.user = user
+                .orElseThrow(() -> new RuntimeException("User not Found")  );
     }
 
     @Override
