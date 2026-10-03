@@ -2,6 +2,7 @@ package com.example.ecommerce.service;
 
 import com.example.ecommerce.dto.CartItemRequest;
 import com.example.ecommerce.dto.CartItemResponse;
+import com.example.ecommerce.dto.CartQuantityRequest;
 import com.example.ecommerce.dto.CartResponse;
 import com.example.ecommerce.entity.Cart;
 import com.example.ecommerce.entity.CartItem;
@@ -175,5 +176,31 @@ public class CartService {
                 items,
                 total
         );
+    }
+
+    @Transactional
+    public  CartResponse updateCartItem(
+            Long cartItemId,
+            CartQuantityRequest request,
+            Authentication authentication){
+        User user = getAuthenticatedUser(authentication);
+
+        Cart cart = cartRepository.findByUser(user)
+                .orElseThrow(() -> new ResourceNotFoundException("user not found"));
+        CartItem cartItem = cartItemRepository.findByIdAndCart(cartItemId , cart)
+                .orElseThrow(() -> new ResourceNotFoundException("User cart is not found"));
+        Product product = cartItem.getProduct();
+
+        if(request.getQuantity() > product.getQuantity()){
+            throw new IllegalArgumentException(
+                    "Insufficent qunatity, Avialble stock: "
+                    +product.getQuantity()
+            );
+        }
+        cartItem.setQuantity(request.getQuantity());
+
+        cartItemRepository.save(cartItem);
+
+        return buildCartResponse(cart);
     }
 }

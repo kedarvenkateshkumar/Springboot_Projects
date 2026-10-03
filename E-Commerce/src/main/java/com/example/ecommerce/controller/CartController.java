@@ -1,6 +1,7 @@
 package com.example.ecommerce.controller;
 
 import com.example.ecommerce.dto.CartItemRequest;
+import com.example.ecommerce.dto.CartQuantityRequest;
 import com.example.ecommerce.dto.CartResponse;
 import com.example.ecommerce.service.CartService;
 
@@ -36,6 +37,21 @@ public class CartController {
 
         return ResponseEntity.ok(
                 cartService.getMyCart(authentication)
+        );
+    }
+
+    @PutMapping("/items/{cartItemId}")
+    public ResponseEntity<CartResponse> updateCartItem(
+            @PathVariable Long cartItemId,
+            @Valid @RequestBody CartQuantityRequest request,
+            Authentication authentication) {
+
+        return ResponseEntity.ok(
+                cartService.updateCartItem(
+                        cartItemId,
+                        request,
+                        authentication
+                )
         );
     }
 }
