@@ -54,4 +54,16 @@ public class CartController {
                 )
         );
     }
+    @DeleteMapping("/items/{cartItemId}")
+    public ResponseEntity<CartResponse> removeCartItem(
+            @PathVariable Long cartItemId,
+            Authentication authentication) {
+
+        return ResponseEntity.ok(
+                cartService.removeCartItems(
+                        cartItemId,
+                        authentication
+                )
+        );
+    }
 }

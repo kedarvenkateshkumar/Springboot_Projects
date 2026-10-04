@@ -203,4 +203,27 @@ public class CartService {
 
         return buildCartResponse(cart);
     }
+
+    @Transactional
+    public CartResponse removeCartItems(
+            Long cartItemId,
+            Authentication authentication
+    ){
+        User user = getAuthenticatedUser(authentication);
+        Cart cart = cartRepository.findByUser(user)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        CartItem cartItem = cartItemRepository.findByIdAndCart(cartItemId , cart)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Cart items not found"
+                ));
+
+        cartItemRepository.delete(cartItem);
+
+        cart.getItems().remove(cartItem);
+
+        return buildCartResponse(cart);
+    }
+
+
 }
