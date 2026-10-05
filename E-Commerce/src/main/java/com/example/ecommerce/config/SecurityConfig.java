@@ -40,8 +40,30 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.DELETE, "/api/products/**")
                         .hasAuthority("ADMIN")
-                        .requestMatchers("/api/orders/**")
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/orders/**"
+                        )
+                        .hasAnyAuthority("USER", "ADMIN")
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/orders"
+                        )
                         .hasAuthority("USER")
+
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/orders/*/status"
+                        )
+                        .hasAuthority("ADMIN")
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/orders/admin"
+                        )
+                        .hasAuthority("ADMIN")
                     .anyRequest().authenticated())
         //http.formLogin(Customizer.withDefaults());
             .httpBasic(Customizer.withDefaults())

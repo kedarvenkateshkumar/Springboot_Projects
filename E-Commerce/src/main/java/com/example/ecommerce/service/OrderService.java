@@ -2,6 +2,7 @@ package com.example.ecommerce.service;
 
 import com.example.ecommerce.dto.OrderItemResponse;
 import com.example.ecommerce.dto.OrderResponse;
+import com.example.ecommerce.dto.UpdateOrderStatusRequest;
 import com.example.ecommerce.entity.Cart;
 import com.example.ecommerce.entity.CartItem;
 import com.example.ecommerce.entity.Order;
@@ -223,4 +224,103 @@ public class OrderService {
 
         return convertToResponse(order);
     }
+
+    @Transactional
+    public OrderResponse cancelOrder(
+            Long orderId,
+            Authentication authentication) {
+
+        // 1. Get logged-in user
+        User user = getAuthenticatedUser(authentication);
+
+        // 2. Find this user's order
+        Order order = orderRepository
+                .findByIdAndUser(orderId, user)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Order not found with id: " + orderId
+                        ));
+
+        // 3. Check order status
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new IllegalStateException(
+                    "Only pending orders can be cancelled "
+                    + "your order status: "+ order.getStatus()
+
+            );
+        }
+
+        // 4. Restore product stock
+        for (OrderItem item : order.getItems()) {
+
+            Product product = item.getProduct();
+
+            product.setQuantity(
+                    product.getQuantity()
+                            + item.getQuantity()
+            );
+
+            productRepository.save(product);
+        }
+
+        // 5. Change order status
+        order.setStatus(OrderStatus.CANCELLED);
+
+        // 6. Save order
+        Order cancelledOrder =
+                orderRepository.save(order);
+
+        // 7. Return updated order
+        return convertToResponse(cancelledOrder);
+    }
+
+    @Transactional
+    public OrderResponse updateOrderStatus(
+            Long orderId,
+            UpdateOrderStatusRequest request) throws IllegalAccessException {
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Order not found with id: " + orderId
+                        ));
+
+        OrderStatus currentStatus = order.getStatus();
+        OrderStatus newStatus = request.getStatus();
+
+        validateStatusTransition(
+                currentStatus,
+                newStatus
+        );
+
+        order.setStatus(newStatus);
+
+        Order updatedOrder =
+                orderRepository.save(order);
+
+        return convertToResponse(updatedOrder);
+    }
+
+    private void validateStatusTransition(OrderStatus currentStatus, OrderStatus newStatus) throws IllegalAccessException {
+        if(currentStatus == OrderStatus.PENDING && newStatus == OrderStatus.CONFIRMED) return;
+        if(currentStatus == OrderStatus.CONFIRMED && newStatus == OrderStatus.SHIPPED) return;
+        if(currentStatus == OrderStatus.SHIPPED && newStatus == OrderStatus.DELIVERED) return;
+
+        throw new IllegalAccessException(
+                "Invalid order status transition "
+                + currentStatus
+                + " -> "
+                + newStatus
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderResponse> getAllOrders() {
+
+        return orderRepository.findAll()
+                .stream()
+                .map(this::convertToResponse)
+                .toList();
+    }
+
 }

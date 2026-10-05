@@ -1,8 +1,10 @@
 package com.example.ecommerce.controller;
 
 import com.example.ecommerce.dto.OrderResponse;
+import com.example.ecommerce.dto.UpdateOrderStatusRequest;
 import com.example.ecommerce.service.OrderService;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -50,6 +52,38 @@ public class OrderController {
                         orderId,
                         authentication
                 )
+        );
+    }
+    @PutMapping("/{orderId}/cancel")
+    public ResponseEntity<OrderResponse> cancelOrder(
+            @PathVariable Long orderId,
+            Authentication authentication) {
+
+        return ResponseEntity.ok(
+                orderService.cancelOrder(
+                        orderId,
+                        authentication
+                )
+        );
+    }
+
+    @PutMapping("/{orderId}/status")
+    public ResponseEntity<OrderResponse> updateOrderStatus(
+            @PathVariable Long orderId,
+            @Valid @RequestBody UpdateOrderStatusRequest request) throws IllegalAccessException {
+
+        return ResponseEntity.ok(
+                orderService.updateOrderStatus(
+                        orderId,
+                        request
+                )
+        );
+    }
+    @GetMapping("/admin")
+    public ResponseEntity<List<OrderResponse>> getAllOrders() {
+
+        return ResponseEntity.ok(
+                orderService.getAllOrders()
         );
     }
 }
