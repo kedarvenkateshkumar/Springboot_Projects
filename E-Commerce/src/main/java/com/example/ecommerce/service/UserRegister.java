@@ -33,8 +33,8 @@ public class UserRegister {
 
     public User register(User user) {
         Optional<User> exist = userRepo.findByUsername(user.getUsername());
-        if (exist != null) {
-            throw new UserAlreadyExistException("user already exist");
+        if (exist.isPresent()) {
+            throw new UserAlreadyExistException("Username already exists");
         }
         user.setPassword(encoder.encode(user.getPassword()));
         return userRepo.save(user);
