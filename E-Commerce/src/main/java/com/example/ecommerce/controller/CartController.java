@@ -5,6 +5,7 @@ import com.example.ecommerce.dto.CartQuantityRequest;
 import com.example.ecommerce.dto.CartResponse;
 import com.example.ecommerce.service.CartService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/cart")
+@SecurityRequirement(name = "bearerAuth")
 public class CartController {
 
     private final CartService cartService;

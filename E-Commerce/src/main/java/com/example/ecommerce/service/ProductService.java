@@ -2,11 +2,14 @@ package com.example.ecommerce.service;
 
 import com.example.ecommerce.dto.ProductRequest;
 import com.example.ecommerce.dto.ProductResponse;
+import com.example.ecommerce.dto.StockUpdateRequest;
 import com.example.ecommerce.entity.Product;
 import com.example.ecommerce.exception.ResourceNotFoundException;
 import com.example.ecommerce.repository.ProductRepository;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @Service
@@ -51,13 +54,14 @@ public class ProductService {
         return convertToResponse(product);
     }
 
-    public List<ProductResponse> searchProducts(String name) {
+    @Transactional(readOnly = true)
+    public Page<ProductResponse> searchProducts(
+            String name,
+            Pageable pageable) {
 
         return productRepository
-                .findByNameContainingIgnoringCase(name)
-                .stream()
-                .map(this::convertToResponse)
-                .toList();
+                .findByNameContainingIgnoringCase(name, pageable)
+                .map(this::convertToResponse);
     }
 
     public ProductResponse updateProduct(
@@ -100,5 +104,45 @@ public class ProductService {
                 product.getPrice(),
                 product.getQuantity()
         );
+    }
+
+    @Transactional
+    public ProductResponse updateStock(
+            Long productId,
+            StockUpdateRequest request
+    ){
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Product not found with the product id: " + productId));
+
+        product.setQuantity(request.getQuantity());
+
+        Product savedProduct = productRepository.save(product);
+
+        return convertToResponse(savedProduct);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductResponse> getLowStockProducts(Integer threshold) {
+
+        if (threshold < 0) {
+            throw new IllegalArgumentException(
+                    "Threshold cannot be negative"
+            );
+        }
+
+        return productRepository
+                .findByQuantityLessThanEqual(threshold)
+                .stream()
+                .map(this::convertToResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ProductResponse> getProducts(Pageable pageable) {
+
+        return productRepository
+                .findAll(pageable)
+                .map(this::convertToResponse);
     }
 }

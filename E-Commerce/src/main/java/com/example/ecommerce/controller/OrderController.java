@@ -4,6 +4,7 @@ import com.example.ecommerce.dto.OrderResponse;
 import com.example.ecommerce.dto.UpdateOrderStatusRequest;
 import com.example.ecommerce.service.OrderService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/orders")
+@SecurityRequirement(name = "bearerAuth")
 public class OrderController {
 
     private final OrderService orderService;
