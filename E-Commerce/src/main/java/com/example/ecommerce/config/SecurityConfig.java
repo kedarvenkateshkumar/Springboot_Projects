@@ -33,8 +33,12 @@ public class SecurityConfig {
                 .csrf(Customizer -> Customizer.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(request -> request
-                    .requestMatchers("/auth/register" , "/auth/login")
+                    .requestMatchers("/api/auth/register" , "/api/auth/login")
                     .permitAll()
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/products","/api/products/search"
+                        ).permitAll()
 
                         .requestMatchers(
                                 HttpMethod.PUT,
