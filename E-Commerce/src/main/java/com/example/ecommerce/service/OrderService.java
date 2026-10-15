@@ -244,8 +244,8 @@ public class OrderService {
         // 3. Check order status
         if (order.getStatus() != OrderStatus.PENDING) {
             throw new IllegalStateException(
-                    "Only pending orders can be cancelled "
-                    + "your order status: "+ order.getStatus()
+                    order.getStatus()+" orders can not canceled"
+
 
             );
         }

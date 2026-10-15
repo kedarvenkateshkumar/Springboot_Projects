@@ -17,6 +17,10 @@ public class UserPrinciples implements UserDetails {
                 .orElseThrow(() -> new RuntimeException("User not Found")  );
     }
 
+    public User getUser() {
+        return user;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
